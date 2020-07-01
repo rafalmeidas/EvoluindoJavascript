@@ -1,15 +1,14 @@
-class View<T> {
-    protected _elemento: Element;
+abstract class View<T> {
+    protected _elemento: JQuery;
 
     constructor(elemento: string) {
-        this._elemento = document.querySelector(elemento);
+        this._elemento = $(elemento);
     }
 
     update(model: T): void {
-        this._elemento.innerHTML = this.template(model);
+        this._elemento.html(this.template(model));
     }
 
-    template(model: T): string {
-        throw new Error('Você deve sobreescrever este método.')
-    }
+    abstract template(model: T): string;
+
 }
