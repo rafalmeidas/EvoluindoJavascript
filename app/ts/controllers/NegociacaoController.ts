@@ -1,7 +1,5 @@
-import { Negociacao } from '../models/Negociacao';
-import { Negociacoes } from '../models/Negociacoes';
-import { NegociacoesView } from '../views/NegociacoesView';
-import { MensagemView } from '../views/MensagemView';
+import { Negociacao, Negociacoes } from '../models/index'
+import { NegociacoesView, MensagemView } from '../views/index'
 
 export class NegocaciacaoController {
 
@@ -25,8 +23,15 @@ export class NegocaciacaoController {
     adiciona(event: Event) {
         event.preventDefault();
 
+        //Validação de data utilizando Enum e metodo criados no fim desta classe.
+        let data = new Date(this._inputData.val().replace(/-/g, ','));
+        if(!this._ehDiaUtil(data)){
+            this._mensagemView.update('Negociações só podem ser efetuadas em dias úteis.');
+            return
+        }
+
         const negociacao = new Negociacao(
-            new Date(this._inputData.val().replace(/-/g, ',')),
+            data,
             parseInt(this._inputQuantidade.val()),
             parseFloat(this._inputValor.val())
         );
@@ -44,4 +49,18 @@ export class NegocaciacaoController {
         this._negociacoesView.update(this._negociacoes);
         this._mensagemView.update('Negociação adicionada com sucesso!');
     }
+
+    private _ehDiaUtil(data: Date){
+        return data.getDay() != DiaDaSemana.Sabado && data.getDay() != DiaDaSemana.Domingo;
+    }
+}
+
+enum DiaDaSemana {
+    Domingo,
+    Segunda,
+    Terca,
+    Quarta,
+    Quinta,
+    Sexta,
+    Sabado
 }
