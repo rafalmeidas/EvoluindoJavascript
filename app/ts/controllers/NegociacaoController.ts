@@ -1,5 +1,6 @@
 import { Negociacao, Negociacoes } from '../models/index'
 import { NegociacoesView, MensagemView } from '../views/index'
+import { logarTempoDeExecucao } from '../helpers/decorators/logarTempoDeExecucao'
 
 export class NegocaciacaoController {
 
@@ -20,12 +21,13 @@ export class NegocaciacaoController {
         this._negociacoesView.update(this._negociacoes);
     }
 
+    @logarTempoDeExecucao(true)
     adiciona(event: Event) {
         event.preventDefault();
 
         //Validação de data utilizando Enum e metodo criados no fim desta classe.
         let data = new Date(this._inputData.val().replace(/-/g, ','));
-        if(!this._ehDiaUtil(data)){
+        if (!this._ehDiaUtil(data)) {
             this._mensagemView.update('Negociações só podem ser efetuadas em dias úteis.');
             return
         }
@@ -50,7 +52,7 @@ export class NegocaciacaoController {
         this._mensagemView.update('Negociação adicionada com sucesso!');
     }
 
-    private _ehDiaUtil(data: Date){
+    private _ehDiaUtil(data: Date) {
         return data.getDay() != DiaDaSemana.Sabado && data.getDay() != DiaDaSemana.Domingo;
     }
 }
