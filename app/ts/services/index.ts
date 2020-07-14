@@ -1,0 +1,1 @@
+export { NegociacaoService } from '../services/NegociacaoService';
