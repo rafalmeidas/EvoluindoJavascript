@@ -1,0 +1,1 @@
+export { imprime } from './Utils'

@@ -2,6 +2,7 @@ import { Negociacao, Negociacoes, NegociacaoParcial } from '../models/index';
 import { NegociacoesView, MensagemView } from '../views/index';
 import { logarTempoDeExecucao, domInject, meuDecoratorDeClasse, throttle } from '../helpers/decorators/index';
 import { NegociacaoService } from '../services/index';
+import { imprime } from '../helpers/Utils';
 
 
 @meuDecoratorDeClasse()
@@ -48,12 +49,7 @@ export class NegocaciacaoController {
 
         this._negociacoes.adiciona(negociacao);
 
-        this._negociacoes.paraArray().forEach(n => {
-            console.log(n.data);
-            console.log(n.quantidade);
-            console.log(n.valor);
-            console.log(n.volume);
-        });
+        imprime(negociacao, this._negociacoes);
 
         //Atualiza views no index
         this._negociacoesView.update(this._negociacoes);
@@ -65,27 +61,27 @@ export class NegocaciacaoController {
     }
 
     @throttle()
-    importarDados() {
+    async importarDados() {
 
-        function isOK(res: Response) {
-
+        const negociacoesParaImportar = await this._service.obterNegociacoes((res: Response) => {
             if (res.ok) {
                 return res;
             } else {
                 throw new Error(res.statusText);
             }
-        }
+        });
 
-        this._service
-            .obterNegociacoes(isOK)
-            .then(negociacoes => {
-                if (negociacoes)
-                    negociacoes.forEach(negociacao =>
-                        this._negociacoes.adiciona(negociacao));
-                this._negociacoesView.update(this._negociacoes);
-            });
+        const negociacoesJaImportadas = this._negociacoes.paraArray();
 
-    }
+        negociacoesParaImportar
+            .filter(negociacao =>
+                !negociacoesJaImportadas.some(jaImportada =>
+                    negociacao.ehIgual(jaImportada)))
+            .forEach(negociacao =>
+                this._negociacoes.adiciona(negociacao));
+
+        this._negociacoesView.update(this._negociacoes);
+    };
 }
 
 enum DiaDaSemana {
